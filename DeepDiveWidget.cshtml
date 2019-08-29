@@ -1,0 +1,50 @@
+﻿@inherits System.Web.Mvc.WebViewPage<Avectra.netForum.iWeb.Models.DynamicPageModel>
+@using System.Data
+@using System.Data.SqlClient
+@using Newtonsoft.Json
+@using Avectra.netForum.Common
+@using Avectra.netForum.ServiceLayer
+@using Avectra.netForum.Data
+@{
+    string mvcKey = (string)ViewData["widgetKey"] ?? Model.currentWidgetKey;
+    string error = null;
+    string user = User.Identity.Name.ToLower();
+	string userAddDate = "";
+	string userChangeDate = "";
+    if(user.IndexOf('\\') >= 0) {
+        user = user.Split('\\')[1];
+    }
+
+    Dictionary<string, string> stats = new Dictionary<string, string>();
+
+    try {
+        DataSet dsStats = DataUtils.GetDataSet("SELECT usr_add_date, usr_change_date FROM fw_user WHERE usr_code='" + user + "'");
+		if(dsStats.Tables[0].Rows.Count == 0) {error = "Couldn't find a user entry for " + user;}
+		else {
+			userAddDate = dsStats.Tables[0].Rows[0]["usr_add_date"].ToString();
+			userChangeDate = dsStats.Tables[0].Rows[0]["usr_change_date"].ToString();
+		}
+    }
+    catch(Exception ex) {
+        error = ex.Message;
+    }
+}
+<div class="widget-wrapper form-group @Model.WidgetHiddenCss(mvcKey)" widgetKey="@mvcKey">
+    <div @Html.Raw(Model.WidgetRenderAttributes(mvcKey))>
+        @Html.Raw(Model.WidgetRenderHandle(mvcKey))
+        @if (Model.page.WidgetIsVisible(mvcKey))
+        {
+            <div id='@Html.Raw("userAddDate" + mvcKey)'></div>
+            <h5>User Detail for @user</h5>
+            if (error == null)
+            {
+                <p>@user was added on @userAddDate</p>
+                <!-- p>@user was updated on @userChangeDate</p -->
+            }
+            else
+            {
+                <h4>Bad things have happened</h4><p>@error</p>
+            }
+         }
+    </div>
+</div>
