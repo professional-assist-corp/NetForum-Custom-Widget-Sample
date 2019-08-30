@@ -1,4 +1,5 @@
 EXEC [dbo].[client_pac_create_custom_widget_type]
+	@WidgetName = 'Deep Dive Sample',
 	@WidgetFile = N'DeepDiveWidget',
 	@addUser = dzarn_pac,
 	@formKey = 'aa0c2413-b416-4a04-bc64-4ba1ca3a0c75',
